@@ -41,6 +41,10 @@ resources:
 # list of dependencies installed via npm
 plugins:
   - serverless-s3-sync
+  - serverless-webpack
+
+package:
+  individually: true # package each lambda individually using webpack
 
 # setup list of bucket-folder syncs
 custom:
