@@ -12,6 +12,7 @@ const S3 = {
         
         // check it is json file
         const fileExtension = fileName.slice(fileName.length - 4, fileName.length)
+        // const fileExtension = /\.json$/.test(fileName)
         if (fileExtension === 'json') {
             // S3 response is Blob, convert to string
             return res.Body.toString()
