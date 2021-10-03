@@ -12,15 +12,19 @@ exports.handler = async event => {
     if(!pathParameters || !pathParameters.ID) {
         return Responses._400({message: 'Missing the ID from the path'})
     }
-
     const {ID} = pathParameters
-    const user = await Dynamo.get(ID, tableName).catch(err => {
-        console.log('Error in dynamo get', err);
+
+    const user = JSON.parse(event.body)
+    user.ID = ID
+
+    const newUser = await Dynamo.write(user, tableName).catch(err => {
+        console.log('Error in dynamo write', err);
         return null
     })
-    if (!user) {
-        return Responses._400({message: 'Faild to get user by ID'})
+
+    if (!newUser) {
+        return Responses._400({message: 'Faild to write user by ID'})
     }
 
-    return Responses._200({ user })
+    return Responses._200({ newUser })
 }

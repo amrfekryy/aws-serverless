@@ -110,14 +110,20 @@ functions:
     handler: lambdas/endpoints/getUser.handler
     events:
       - httpApi:
-          path: /users/{ID}
+          path: /get-user/{ID}
           method: get
   getPlayerScore:
     handler: lambdas/endpoints/getPlayerScore.handler
     events:
       - httpApi:
-          path: /player-scores/{ID}
+          path: /get-player-score/{ID}
           method: get
+  createPlayerScore:
+    handler: lambdas/endpoints/createPlayerScore.handler
+    events:
+      - httpApi:
+          path: /create-player-score/{ID}
+          method: post
 
           #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
