@@ -27,9 +27,16 @@ provider:
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
   profile: serverlessUser # add this
+  # region: eu-west-1
   httpApi:
     cors: true
-
+  environment: # env variables
+    tableName: ${self:custom.tableName}
+  iamRoleStatements: # permissions
+    - Effect: Allow
+      Action:
+        - "dynamodb:*" # all dynamodb methods
+      Resource: '*' # all tables
 
 resources:
   Resources:
@@ -100,12 +107,19 @@ custom:
 
 functions:
   getUser:
-    handler: lambdas/getUser.handler
+    handler: lambdas/endpoints/getUser.handler
     events:
       - httpApi:
           path: /users/{ID}
           method: get
-#    The following are a few example events you can configure
+  getPlayerScore:
+    handler: lambdas/endpoints/getPlayerScore.handler
+    events:
+      - httpApi:
+          path: /player-scores/{ID}
+          method: get
+
+          #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
 #    events:
