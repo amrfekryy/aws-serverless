@@ -28,8 +28,8 @@ provider:
   lambdaHashingVersion: 20201221
   profile: serverlessUser # add this
   # region: eu-west-1
-  httpApi:
-    cors: true
+  # httpApi: # httpApi is replacing http events: https://www.serverless.com/blog/aws-http-api-support
+  #   cors: true
   environment: # env variables
     tableName: ${self:custom.tableName}
     bucketName: ${self:custom.bucketName}
@@ -39,6 +39,30 @@ provider:
         - dynamodb:* # all dynamodb methods
         - s3:* # read and write to s3
       Resource: '*' # all tables
+  apiGateway:
+    apiKeys: # will need to add request header: "X-API-KEY": "generated key" to access 'private' endpoints
+      - free:  
+        - MyFreeApiKey 
+      - paid:
+        - MyPaidApiKey
+    usagePlan:
+      - free:
+          quota:
+            limit: 5000
+            # offset: 2
+            period: MONTH
+          throttle:
+            burstLimit: 200
+            rateLimit: 100
+      - paid:
+          quota:
+            limit: 50000
+            # offset: 1
+            period: MONTH
+          throttle:
+            burstLimit: 2000
+            rateLimit: 1000
+
 
 resources:
   Resources:
@@ -113,37 +137,43 @@ functions:
   getUser:
     handler: lambdas/endpoints/getUser.handler
     events:
-      - httpApi:
+      - http:
           path: /get-user/{ID}
           method: get
+          cors: true
+          private: true # needs apiKey to access
 
   getPlayerScore:
     handler: lambdas/endpoints/getPlayerScore.handler
     events:
-      - httpApi:
+      - http:
           path: /get-player-score/{ID}
           method: get
+          cors: true
 
   createPlayerScore:
     handler: lambdas/endpoints/createPlayerScore.handler
     events:
-      - httpApi:
+      - http:
           path: /create-player-score/{ID}
           method: post
+          cors: true
 
   createFile:
     handler: lambdas/endpoints/createFile.handler
     events:
-      - httpApi:
+      - http:
           path: /create-file/{fileName}
           method: post
+          cors: true
 
   getFile:
     handler: lambdas/endpoints/getFile.handler
     events:
-      - httpApi:
+      - http:
           path: /get-file/{fileName}
           method: get
+          cors: true
           
           #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
