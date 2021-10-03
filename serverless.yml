@@ -32,10 +32,12 @@ provider:
     cors: true
   environment: # env variables
     tableName: ${self:custom.tableName}
+    bucketName: ${self:custom.bucketName}
   iamRoleStatements: # permissions
     - Effect: Allow
       Action:
-        - "dynamodb:*" # all dynamodb methods
+        - dynamodb:* # all dynamodb methods
+        - s3:* # read and write to s3
       Resource: '*' # all tables
 
 resources:
@@ -43,7 +45,7 @@ resources:
     DemoBucketUpload: # s3 bucket
       Type: AWS::S3::Bucket
       Properties:
-        BucketName: serverlessprojectbucket-amradzily
+        BucketName: ${self:custom.bucketName}
     myDynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -67,8 +69,9 @@ package:
 # setup list of bucket-folder syncs
 custom:
   tableName: player-points
+  bucketName: serverlessprojectbucket-amradzily
   s3Sync:
-    - bucketName: serverlessprojectbucket-amradzily
+    - bucketName: ${self:custom.bucketName}
       localDir: UploadData
 
 # -------------------
@@ -106,18 +109,21 @@ custom:
 #    - include-me-dir/**
 
 functions:
+
   getUser:
     handler: lambdas/endpoints/getUser.handler
     events:
       - httpApi:
           path: /get-user/{ID}
           method: get
+
   getPlayerScore:
     handler: lambdas/endpoints/getPlayerScore.handler
     events:
       - httpApi:
           path: /get-player-score/{ID}
           method: get
+
   createPlayerScore:
     handler: lambdas/endpoints/createPlayerScore.handler
     events:
@@ -125,6 +131,20 @@ functions:
           path: /create-player-score/{ID}
           method: post
 
+  createFile:
+    handler: lambdas/endpoints/createFile.handler
+    events:
+      - httpApi:
+          path: /create-file/{fileName}
+          method: post
+
+  getFile:
+    handler: lambdas/endpoints/getFile.handler
+    events:
+      - httpApi:
+          path: /get-file/{fileName}
+          method: get
+          
           #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
