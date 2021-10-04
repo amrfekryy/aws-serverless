@@ -1,17 +1,22 @@
 const Responses = require('../common/API_Responses')
 const Dynamo = require('../common/Dynamo')
 const { withApiHooks } = require('../common/hooks/api')
+const yup = require('yup')
 
 const tableName = process.env.tableName
 
+const bodySchema = yup.object().shape({
+  name: yup.string().required(),
+  score: yup.number().required()
+})
+const pathParametersSchema = yup.object().shape({
+  ID: yup.string().required(),
+})
+
+
 exports.handler = withApiHooks(async event => {
-  
+
   const ID = event.pathParameters.ID
-
-  if (!ID) {
-    return Responses._400({ message: 'Missing the ID from the path' })
-  }
-
   const user = event.body
   user.ID = ID
 
@@ -22,4 +27,5 @@ exports.handler = withApiHooks(async event => {
   }
 
   return Responses._200({ newUser })
-})
+  
+}, { bodySchema, pathParametersSchema })
