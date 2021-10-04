@@ -159,6 +159,14 @@ functions:
           method: post
           cors: true
 
+  updatePlayerScore:
+    handler: lambdas/endpoints/updatePlayerScore.handler
+    events:
+      - http:
+          path: /update-player-score/{ID}
+          method: put
+          cors: true
+
   createFile:
     handler: lambdas/endpoints/createFile.handler
     events:
