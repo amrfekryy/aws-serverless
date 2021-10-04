@@ -1,19 +1,17 @@
 const Responses = require('../common/API_Responses')
 const Dynamo = require('../common/Dynamo')
+const { withApiHooks } = require('../common/hooks/api')
 
 const tableName = process.env.tableName
 
+exports.handler = withApiHooks(async event => {
+    
+    const ID = event.pathParameters.ID
 
-exports.handler = async event => {
-    console.log('even', event)
-
-    const {pathParameters} = event
-
-    if(!pathParameters || !pathParameters.ID) {
+    if(!ID) {
         return Responses._400({message: 'Missing the ID from the path'})
     }
 
-    const {ID} = pathParameters
     const user = await Dynamo.get(ID, tableName).catch(err => {
         console.log('Error in dynamo get', err);
         return null
@@ -23,4 +21,4 @@ exports.handler = async event => {
     }
 
     return Responses._200({ user })
-}
+})

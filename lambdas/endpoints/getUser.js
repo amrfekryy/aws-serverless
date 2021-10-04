@@ -1,18 +1,18 @@
 const Responses = require('../common/API_Responses')
+const { withApiHooks } = require('../common/hooks/api')
 
-exports.handler = async event => {
-    console.log('even', event)
+exports.handler = withApiHooks(async event => {
 
-    const {pathParameters} = event
+    const ID = event.pathParameters.ID
 
-    if(!pathParameters || !pathParameters.ID) {
+    if(!ID) {
         return Responses._400({message: 'Missing the ID from the path'})
     }
-    if(data[pathParameters.ID]) {
-        return Responses._200(data[pathParameters.ID])
+    if(data[ID]) {
+        return Responses._200(data[ID])
     }
     return Responses._400({message: 'No ID in data'})
-}
+})
 
 const data = {
     1: {name: 'Amr', age: 12, job: 'Developer'},

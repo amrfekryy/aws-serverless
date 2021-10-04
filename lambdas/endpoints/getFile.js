@@ -1,18 +1,17 @@
 const Responses = require('../common/API_Responses')
 const S3 = require('../common/S3')
+const { withApiHooks } = require('../common/hooks/api')
 
 const bucket = process.env.bucketName
 
 
-exports.handler = async event => {
-    console.log('even', event)
+exports.handler = withApiHooks(async event => {
 
-    const {pathParameters} = event
+    const fileName = event.pathParameters.fileName
 
-    if(!pathParameters || !pathParameters.fileName) {
+    if(!fileName) {
         return Responses._400({message: 'Missing the fileName from the path'})
     }
-    const {fileName} = pathParameters
 
     const file = await S3.get(fileName, bucket).catch(err => {
         console.log('Error in S3 get', err);
@@ -24,4 +23,4 @@ exports.handler = async event => {
     }
 
     return Responses._200({ file })
-}
+})

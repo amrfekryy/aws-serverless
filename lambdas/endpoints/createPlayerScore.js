@@ -1,30 +1,25 @@
 const Responses = require('../common/API_Responses')
 const Dynamo = require('../common/Dynamo')
+const { withApiHooks } = require('../common/hooks/api')
 
 const tableName = process.env.tableName
 
+exports.handler = withApiHooks(async event => {
+  
+  const ID = event.pathParameters.ID
 
-exports.handler = async event => {
-    console.log('even', event)
+  if (!ID) {
+    return Responses._400({ message: 'Missing the ID from the path' })
+  }
 
-    const {pathParameters} = event
+  const user = event.body
+  user.ID = ID
 
-    if(!pathParameters || !pathParameters.ID) {
-        return Responses._400({message: 'Missing the ID from the path'})
-    }
-    const {ID} = pathParameters
+  const newUser = await Dynamo.write(user, tableName)
 
-    const user = JSON.parse(event.body)
-    user.ID = ID
+  if (!newUser) {
+    return Responses._400({ message: 'Faild to write user by ID' })
+  }
 
-    const newUser = await Dynamo.write(user, tableName).catch(err => {
-        console.log('Error in dynamo write', err);
-        return null
-    })
-
-    if (!newUser) {
-        return Responses._400({message: 'Faild to write user by ID'})
-    }
-
-    return Responses._200({ newUser })
-}
+  return Responses._200({ newUser })
+})
